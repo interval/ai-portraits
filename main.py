@@ -67,7 +67,7 @@ async def generate(io: IO):
 
     pipe = StableDiffusionPipeline.from_pretrained(
         "/workspace/trained_models/RyanCoppolo"
-    )
+    ).to("cuda" if torch.cuda.is_available() else "cpu")
     image = pipe(
         prompt=prompt,
         negative_prompt="multiple people, ugly, deformed, malformed limbs, low quality, blurry, naked, out of frame",
