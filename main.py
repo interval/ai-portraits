@@ -8,6 +8,7 @@ from interval_sdk import Interval, IO, ctx_var
 from interval_sdk.classes.page import Page
 from interval_sdk.classes.layout import Layout
 from huggingface_hub import hf_hub_download
+from diffusers.pipelines.stable_diffusion.convert_from_ckpt import load_pipeline_from_original_stable_diffusion_ckpt
 from diffusers import StableDiffusionPipeline
 import torch
 
@@ -223,16 +224,10 @@ async def train_model(io: IO):
 
         latest_model_dir = max(glob.glob(f"./logs/{model_name}*"), key=os.path.getmtime)
 
-        subprocess.run(
-            [
-                "python",
-                "diffusers/scripts/convert_original_stable_diffusion_to_diffusers.py",
-                "--checkpoint_path",
-                f"{latest_model_dir}/checkpoints/last.ckpt",
-                "--dump_path",
-                f"{trained_models_dir}/{model_name}",
-            ]
+        pipe = load_pipeline_from_original_stable_diffusion_ckpt(
+          checkpoint_path=f"{latest_model_dir}/checkpoints/last.ckpt",
         )
+        pipe.save_pretrained(f"{trained_models_dir}/{model_name}", safe_serialization=None)
 
     return "All done!"
 
